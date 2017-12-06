@@ -1,5 +1,5 @@
 CC=g++
-CXXFLAGS=-I. -I/usr/lib/jvm/default-java/include -ldl -std=c++11
+CXXFLAGS=-I. -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux -ldl -std=c++11
 SRC=jnipp.o main.o
 VPATH=tests
 

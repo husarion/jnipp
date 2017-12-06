@@ -158,6 +158,29 @@ namespace jni
 	 */
 	void init(JNIEnv* env);
 
+    template<typename T>
+    class Array {
+		T* _data;
+		size_t _size;
+		jobject _handle;
+		friend class Object;
+		Array() {}
+	public:
+		Array(Array&& arr) {
+			_data = arr._data;
+			_size = arr._size;
+			_handle = arr._handle;
+			arr._handle = nullptr;
+			arr._data = nullptr;
+			arr._size = 0;
+		}
+		~Array();
+		Array(const Array& arr) = delete;
+		size_t size() { return _size; }
+		T* data() { return _data; }
+	};
+
+
 	/**
 		Object corresponds with a `java.lang.Object` instance. With an Object,
 		you can then call Java methods, and access fields on the Object. To
@@ -357,6 +380,8 @@ namespace jni
 			\return The JNI handle.
 		 */
 		jobject getHandle() const noexcept { return _handle; }
+
+		Array<uint8_t> asByteArray();
 
 	private:
 		// Helper Functions

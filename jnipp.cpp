@@ -543,6 +543,21 @@ namespace jni
 		env()->SetObjectField(_handle, field, value ? value->getHandle() : NULL);
 	}
 
+    template <typename T> Array<T>::~Array() {
+		if (_handle != nullptr)
+			env()->ReleaseByteArrayElements((jbyteArray)_handle, (jbyte*)_data, 0);
+	}
+
+    Array<uint8_t> Object::asByteArray() {
+		Array<uint8_t> arr;
+		arr._handle = _handle;
+		arr._size = env()->GetArrayLength((jbyteArray)_handle);
+		arr._data = (uint8_t*)env()->GetByteArrayElements((jbyteArray)_handle, 0);
+		return arr;
+    }
+
+    template class Array<uint8_t>;
+
 	jclass Object::getClass() const
 	{
 		if (_class == NULL)
