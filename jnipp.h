@@ -15,6 +15,8 @@ class  _jclass;
 
 namespace jni
 {
+    void finalize();
+
 	// JNI Base Types
 #ifdef __ANDROID__
 	typedef _JNIEnv		JNIEnv;

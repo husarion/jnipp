@@ -31,11 +31,17 @@ namespace jni
 	{
 	public:
 		ScopedEnv() : _vm(nullptr), _env(nullptr), _attached(false) {}
-		~ScopedEnv();
+		//~ScopedEnv();
 
 		void init(JavaVM* vm);
 		JNIEnv* get() const { return _env; }
 
+		void finalize() {
+			if (_vm && _attached) {
+				_vm->DetachCurrentThread();
+         		_vm = nullptr; _attached = false;
+			}
+    	}
 	private:
 		// Instance Variables
 		JavaVM* _vm;
@@ -43,11 +49,12 @@ namespace jni
 		bool    _attached;	///< Manually attached, as opposed to already attached.
 	};
 
-	ScopedEnv::~ScopedEnv()
-	{
-		if (_vm && _attached)
-			_vm->DetachCurrentThread();
-	}
+    static thread_local ScopedEnv globalEnv;
+    void finalize() { globalEnv.finalize(); }
+
+  /*ScopedEnv::~ScopedEnv()
+  {
+	*/
 
 	void ScopedEnv::init(JavaVM* vm)
 	{
@@ -133,12 +140,10 @@ namespace jni
 
 	JNIEnv* env()
 	{
-		static thread_local ScopedEnv env;
+		if (globalEnv.get() == nullptr)
+			globalEnv.init(javaVm);
 
-		if (env.get() == nullptr)
-			env.init(javaVm);
-
-		return env.get();
+		return globalEnv.get();
 	}
 
 	static jclass findClass(const char* name)
